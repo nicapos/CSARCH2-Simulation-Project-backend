@@ -6,6 +6,11 @@ app = Flask(__name__)
 def home():
     return 'Hello, World!'
 
-@app.route('/about')
-def about():
-    return 'About'
+@app.route('/api/convert')
+def converter():
+    pass
+    args = request.args
+@app.route('/api/normalize')
+def round():
+    pass
+    args = request.args
