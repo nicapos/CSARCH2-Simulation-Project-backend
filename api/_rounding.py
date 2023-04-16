@@ -7,6 +7,7 @@ class RoundingMethod(Enum):
 	ROUND_UP = "round up"
 	RTN_TE = "round to nearest (ties to even)"
 
+# Description: Truncate Rounding Method
 def truncate_val(x, y):
     sig_places = y
     count = 0
@@ -25,6 +26,7 @@ def truncate_val(x, y):
                 rounded += digit           
     return rounded
 
+# Description: Round-up Rounding Method
 def roundup_val(x, y):
     isneg = False
     if x.startswith('-'):
@@ -37,6 +39,7 @@ def roundup_val(x, y):
         x = truncate_val(x, y)
     return x    
 
+# Description: Round-down Rounding Method
 def rounddown_val(x, y):
     isneg = False
     
@@ -52,12 +55,14 @@ def rounddown_val(x, y):
         x = truncate_val(x, y)
     return x
 
+# Description: Round to nearest, ties to even Rounding Method
 def checkifeven(num):
     num = int(num)
     if num % 2 == 0:
         return True
     return False
 
+# Description: Round to nearest, ties to even Rounding Method
 def tiestoeven_val(x, y):
     truncated = truncate_val(x, y)
     length = len(truncated)
