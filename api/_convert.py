@@ -125,7 +125,7 @@ def processcoefficient_cont(val):
 def toHex(bin: str):
     return hex(int(bin, 2))[2:]
 
-def convert_bin(significand: float, exponent: int) -> str:
+def convert_bin(significand: int, exponent: int) -> str:
     val = str(significand)
 
 # (A) Process

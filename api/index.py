@@ -15,7 +15,7 @@ def home():
 def converter():
     args = request.args
 
-    significand = args.get('significand', default="NaN", type=float)
+    significand = args.get('significand', default="NaN", type=int)
     exponent = args.get('exponent', default=0, type=int)
 
     if significand == "NaN":
