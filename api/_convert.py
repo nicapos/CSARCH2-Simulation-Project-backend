@@ -23,119 +23,42 @@ def check_combiCase(first_digit):
  
 # Description: Get combination field    
 def process_combiField(case, ep, msb_bin):
-    abcde = []
     if case == 1:
-        abcde.append(ep[0])
-        abcde.append(ep[1])
-        abcde.append(msb_bin[1])
-        abcde.append(msb_bin[2])
-        abcde.append(msb_bin[3])
-        return abcde
+        return ep[:2] + msb_bin[1:4]
     if case == 2:
-        abcde.append(1)
-        abcde.append(1)
-        abcde.append(ep[0])
-        abcde.append(ep[1])
-        abcde.append(msb_bin[3])
-        return abcde
-    error("This is a special case.")    
+        return [1, 1, ep[0], ep[1], msb_bin[3]]
+    
+    return [] # TODO: Return field for special case (part of requirements) 
 
 # Description: check DPBCD case
 def dpbcdCase(aei_list, binary):
     aei_str = ''.join(aei_list)
     output = []
-    binary_list = list(binary)
+    bin = list(binary)
 
-    output.insert(2, binary_list[3])
-    output.insert(5, binary_list[7])
-    output.insert(9, binary_list[11])
+    middle_bit_map = {
+        # aei: [p, q, s, t, w, x]
+        "000": [bin[1],  bin[2], bin[5],  bin[6], bin[9], bin[10]], 
+        "001": [bin[1],  bin[2], bin[5],  bin[6],    '0',     '0'],
+        "010": [bin[1],  bin[2], bin[9], bin[10],    '0',     '1'],
+        "011": [bin[1],  bin[2],    '1',     '0',    '1',     '1'],
+        "100": [bin[9], bin[10], bin[5],  bin[6],    '1',     '0'],
+        "101": [bin[5],  bin[6],    '0',     '1',    '1',     '1'],
+        "110": [bin[9], bin[10],    '0',     '0',    '1',     '1'],
+        "111": [   '0',     '0',    '1',     '1',    '1',     '1']
+    }
 
-    if aei_str != "000":
-        output.insert(6, '1')
-    else:
-        output.insert(6, '0')    
+    output = middle_bit_map[aei_str]
+    
+    output.insert(2, bin[3])    # insert r
+    output.insert(5, bin[7])    # insert u
+    output.append(bin[11])      # insert y
 
-    if aei_str == "000":
-        # pq == bc
-        output.insert(0, binary_list[1])
-        output.insert(1, binary_list[2])
-        # st == fg
-        output.insert(3, binary_list[5])
-        output.insert(4, binary_list[6])
-        # wx == jk
-        output.insert(7, binary_list[9])
-        output.insert(8, binary_list[10])
-    if aei_str == "001":
-        # pq == bc
-        output.insert(0, binary_list[1])
-        output.insert(1, binary_list[2])
-        # st == fg
-        output.insert(3, binary_list[5])
-        output.insert(4, binary_list[6])
-        # wx == 00
-        output.insert(7, '0')
-        output.insert(8, '0')
-    if aei_str == "010":
-        # pq == bc
-        output.insert(0, binary_list[1])
-        output.insert(1, binary_list[2])
-        # st == jk
-        output.insert(3, binary_list[9])
-        output.insert(4, binary_list[10])
-        # wx == 01
-        output.insert(7, '0')
-        output.insert(8, '1')
-    if aei_str == "011":
-        # pq == bc
-        output.insert(0, binary_list[1])
-        output.insert(1, binary_list[2])
-        # st == 10
-        output.insert(3, '1')
-        output.insert(4, '0')
-        # wx == 11
-        output.insert(7, '1')
-        output.insert(8, '1')          
-    if aei_str == "100":
-        # pq == jk
-        output.insert(0, binary_list[9])
-        output.insert(1, binary_list[10])
-        # st == fg
-        output.insert(3, binary_list[5])
-        output.insert(4, binary_list[6])
-        # wx == 10
-        output.insert(7, '1')
-        output.insert(8, '0')    
-    if aei_str == "101":
-        # pq == fg
-        output.insert(0, binary_list[5])
-        output.insert(1, binary_list[6])
-        # st == 01
-        output.insert(3, '0')
-        output.insert(4, '1')
-        # wx == 11
-        output.insert(7, '1')
-        output.insert(8, '1')
-    if aei_str == "110":
-        # pq == jk
-        output.insert(0, binary_list[9])
-        output.insert(1, binary_list[10])
-        # st == 00
-        output.insert(3, '0')
-        output.insert(4, '0')
-        # wx == 11
-        output.insert(7, '1')
-        output.insert(8, '1')   
-    if aei_str == "111":
-        # pq == bc
-        output.insert(0, '0')
-        output.insert(1, '0')
-        # st == fg
-        output.insert(3, '1')
-        output.insert(4, '1')
-        # wx == jk
-        output.insert(7, '1')
-        output.insert(8, '1')  
+    v = '0' if aei_str == '000' else '1'
+    output.insert(6, v)         # insert v = 6
+
     return output      
+
 
 # Description: convert Coefficient to Densely packed BCD
 def processcoefficient_cont(val):
@@ -148,10 +71,7 @@ def processcoefficient_cont(val):
     count = 0
 
     # check if there are 8/9 digits
-    x = val.find("8")
-    y = val.find("9")
-    
-    if x == -1 and y == -1:
+    if not ("8" in val or "9" in val):
         # Convert each digit to binary and concatenate
         binary_str = ''
         for digit in val:
@@ -165,7 +85,6 @@ def processcoefficient_cont(val):
     else: #convert using DPBCD
         n = 3
         substring_list = []
-        binary_substrings = []
 
         for i in range(0, len(val), n):
             substring = val[i:i+n]
@@ -180,7 +99,6 @@ def processcoefficient_cont(val):
             bin_list.append(bin_str)    
             
         aei = []
-        dpbcd = ''
         count = 0
 
         # Get aei to get case
@@ -205,37 +123,16 @@ def processcoefficient_cont(val):
         return binary_str               
 
 # Description: Convert binary string to hex equivalent
-def toHex(bin_string):
-    chunks = []
-    count = 0
-    
-    fours = ''
-    for x in bin_string:
-        fours += x
-        if count == 3:
-            chunks.append(fours)
-            count -= 4
-            fours = ''
-        count += 1
-    
-    hex_string = ''
-    for item in chunks:
-        hex_digit = hex(int(item, 2))[2:].upper() 
-        hex_string += hex_digit
-    
-    return hex_string
+def toHex(bin: str):
+    return hex(int(bin, 2))[2:]
 
 def convert_bin(significand: float, exponent: int) -> str:
-    # TODO: implement convert to binary rep algo.
-    output = ''
     val = str(significand)
-    count = len(re.sub('[^0-9]', '', val))
-    exp = exponent
 
 # (A) Process
 	# (1) Process MSD
     first_digit, msb_bin = processMSD(val)
-    ep = processE_prime(exp)
+    ep = processE_prime(exponent)
 	# (2) Process Combination Field
     case = check_combiCase(first_digit)
     combi = process_combiField(case, ep, msb_bin)
@@ -246,10 +143,7 @@ def convert_bin(significand: float, exponent: int) -> str:
     
  # (B) Put in output
 	# (1) Add Sign Bit
-    if val.startswith('-'):
-        output = output + '1'
-    else:
-        output = output + '0'
+    output += '1' if val.startswith('-') else '0'
     # (2) Add Combination Field
     combi = ''.join([str(elem) for elem in combi])
     output = output + combi
