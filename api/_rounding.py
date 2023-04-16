@@ -158,6 +158,10 @@ def normalize(significand: str, exponent: int) -> tuple:
         significand = significand[:7+sign_offset]
     
     sign_offset = int(significand.startswith('-'))
-    significand = significand.rjust(7+sign_offset, "0")
+
+    if significand.startswith('-'):
+        significand = "-" + significand[1:].rjust(7, "0")
+    else:
+        significand = significand.rjust(7, "0")
                     
     return significand, exponent
