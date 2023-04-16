@@ -71,51 +71,6 @@ def tiestoeven_val(x: str, sig_places: int):
             x = x[:-1] + c     
     return x.ljust(len(str(orig_len)), '0')
 
-def modify_string(val, decimal_index, count):
-    # check if the values after decimal are all zeroes
-    checkzeros = bool(re.search(r'\.\d*[1-9]', val))
-    if not checkzeros: # if all zeroes remove them
-        val = val.replace(".", "")
-        val = val.rstrip("0")
-
-    if val[-1] == '0':
-            val = val.rstrip("0") if "." in val else val
-
-    if count == 7: # ex: 123.4567 = 1234567.
-        return val + "."
-    elif count < 7: # ex: 123.45 = 0012345. or 0.123 = 0000123.
-        # check if it's negative
-        if val.startswith('-'):
-            val = val.lstrip("-")
-            val = val.replace(".", "").rjust(7, "0")
-            return "-" + val + "."
-        # put decimal at the end and append a zero at the front until digits reaches 7
-        val = val.rjust(7, "0")
-        return val 
-    elif count > 7: # ex: 12345678.90 = 1234567.890
-        isneg = False
-        if val.startswith('-'):
-            isneg = True
-            val = val.lstrip("-") 
-        
-        if val[-1] == '0':
-            val = val.rstrip("0") if "." in val else val
-        
-        whole_num_count = decimal_index if decimal_index != -1 else len(val)
-        if whole_num_count > 7:
-            num_zeros = whole_num_count - 7
-            val = val.replace('.', '')
-            val = val.ljust(num_zeros + whole_num_count)
-            val = val[:decimal_index - num_zeros] + '.' + val[decimal_index - num_zeros:]
-        elif whole_num_count < 7:
-            num_zeros = 7 - whole_num_count
-            val = val.replace('.', '')
-            val = val.rjust(num_zeros + whole_num_count)
-            val = val[:decimal_index + num_zeros] + '.' + val[decimal_index + num_zeros:]
-
-        if isneg: 
-            return '-'+val
-
 def is_valid_rounding_method(option: str) -> bool:
     return option in RoundingMethod.__members__.values()
 
