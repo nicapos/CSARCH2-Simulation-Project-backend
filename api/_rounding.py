@@ -146,7 +146,7 @@ def round(value: float, rounding_method: RoundingMethod) -> float:
             return float(rounded)
     return value
 
-def normalize(significand: float, exponent: int, rounding_method: RoundingMethod) -> tuple:
+def normalize(significand: float, exponent: int) -> tuple:
 	# return normalized significand and adjusted exponent
 
 	val = str(significand)
