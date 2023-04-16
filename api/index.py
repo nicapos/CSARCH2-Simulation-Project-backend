@@ -1,5 +1,5 @@
 from flask import Flask, request
-from api._rounding import normalize, is_valid_rounding_method
+from api._rounding import round, normalize, is_valid_rounding_method
 from api._convert import convert_bin, format_bin
 import re
 
@@ -40,7 +40,8 @@ def round():
     param_exponent = args.get('exponent', default=0, type=int)
     rounding_method = args.get('rounding_method', default='truncate', type=str)
     
-    significand, exponent = normalize(param_significand, param_exponent, rounding_method)
+    rounded_significand = round(param_significand, rounding_method)
+    significand, exponent = normalize(rounded_significand, param_exponent, rounding_method)
 
     return {
         'significand': significand, 
