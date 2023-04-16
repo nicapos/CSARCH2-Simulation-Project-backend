@@ -119,7 +119,7 @@ def modify_string(val, decimal_index, count):
 def is_valid_rounding_method(option: str) -> bool:
     return option in RoundingMethod.__members__.values()
 
-def round(value: float, rounding_method: RoundingMethod) -> float:
+def round_value(value: float, rounding_method: RoundingMethod) -> float:
     count = len(re.sub('[^0-9]', '', str(value)))
 
     if count >= 7:
