@@ -36,9 +36,15 @@ def converter():
 def round():
     args = request.args
 
-    param_significand = args.get('significand', default=0, type=float)
+    param_significand = args.get('significand', default="NaN", type=str)
     param_exponent = args.get('exponent', default=0, type=int)
     rounding_method = args.get('rounding_method', default='truncate', type=str)
+
+    if param_significand == "NaN":
+        return {
+            'significand': "NaN", 
+            'exponent': "NaN"
+        }
     
     rounded_significand = round_value(param_significand, rounding_method)
     significand, exponent = normalize(rounded_significand, param_exponent)

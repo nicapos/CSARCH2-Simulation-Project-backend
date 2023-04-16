@@ -119,29 +119,28 @@ def modify_string(val, decimal_index, count):
 def is_valid_rounding_method(option: str) -> bool:
     return option in RoundingMethod.__members__.values()
 
-def round_value(value: float, rounding_method: RoundingMethod) -> float:
+def round_value(value: float, rounding_method: RoundingMethod):
     count = len(re.sub('[^0-9]', '', str(value)))
 
     if count >= 7:
         if rounding_method == RoundingMethod.TRUNCATE:
             rounded = truncate_val(str(value), 7)
-            return float(rounded)
+            return rounded
         elif rounding_method == RoundingMethod.ROUND_UP:
             rounded = roundup_val(str(value), 7)
-            return float(rounded)
+            return rounded
         elif rounding_method == RoundingMethod.ROUND_DOWN:
             rounded = rounddown_val(str(value), 7)
-            return float(rounded)
+            return rounded
         elif rounding_method == RoundingMethod.RTN_TE:            
             rounded = tiestoeven_val(str(value), 7)
-            return float(rounded)
+            return rounded
         
     return value
 
-def normalize(significand: float, exponent: int) -> tuple:
+def normalize(significand: str, exponent: int) -> tuple:
 	# return normalized significand and adjusted exponent, assumes significand was already rounded
 
-    significand = str(significand)
     count_digits = len(re.sub('[^0-9]', '', significand))
  
     if '.' in significand: # ex. 123456.700 x 10^0 -> 123456700 x 10^-3
