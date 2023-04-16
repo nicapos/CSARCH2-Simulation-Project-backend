@@ -90,14 +90,14 @@ def modify_string(val, decimal_index, count):
     if val[-1] == '0':
             val = val.rstrip("0") if "." in val else val
 
-    if count == 7: # ex: 123.4567 = 1234567.0
-        return val
-    elif count < 7: # ex: 123.45 = 0012345 or 0.123 = 0000123
+    if count == 7: # ex: 123.4567 = 1234567.
+        return val + "."
+    elif count < 7: # ex: 123.45 = 0012345. or 0.123 = 0000123.
         # check if it's negative
         if val.startswith('-'):
             val = val.lstrip("-")
             val = val.replace(".", "").rjust(7, "0")
-            return "-" + val
+            return "-" + val + "."
         # put decimal at the end and append a zero at the front until digits reaches 7
         val = val.rjust(7, "0")
         return val 
