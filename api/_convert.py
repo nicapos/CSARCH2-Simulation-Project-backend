@@ -27,8 +27,7 @@ def process_combiField(case, ep, msb_bin):
         return ep[:2] + msb_bin[1:4]
     if case == 2:
         return [1, 1, ep[0], ep[1], msb_bin[3]]
-    
-    return [] # TODO: Return field for special case (part of requirements) 
+    return ['1','1','1','1','0'] # TODO: Return field for special case (part of requirements) 
 
 # Description: check DPBCD case
 def dpbcdCase(aei_list, binary):
@@ -130,15 +129,19 @@ def convert_bin(significand: float, exponent: int) -> str:
     val = str(significand)
 
 # (A) Process
-	# (1) Process MSD
+	# (1) Process MSB
     first_digit, msb_bin = processMSD(val)
+    # (2) Process E'
     ep = processE_prime(exponent)
-	# (2) Process Combination Field
-    case = check_combiCase(first_digit)
+    if exponent <= 90 and exponent >= -101:
+        case = check_combiCase(first_digit)
+    else:
+        case = 0
+    # (3) Process Combination Field    
     combi = process_combiField(case, ep, msb_bin)
-    # (3) Process Exponent Continuation
-    ep = ep[2:]
-    # (4) Process Coefficient Continuation
+    # (4) Process Exponent Continuation
+    ep = ep[2:]        
+    # (5) Process Coefficient Continuation
     coeff = processcoefficient_cont(val)
     
  # (B) Put in output
