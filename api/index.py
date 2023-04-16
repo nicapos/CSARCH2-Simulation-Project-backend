@@ -15,12 +15,13 @@ def home():
 def converter():
     args = request.args
 
-    significand = args.get('significand', default="0", type=float)
+    significand = args.get('significand', default="NaN", type=float)
     exponent = args.get('exponent', default=0, type=int)
 
     if significand == "NaN":
-        repr_binary = "01111100000000000000000000"
+        repr_binary = "01111100000000000000000000000000"
         repr_hex = hex(int(repr_binary, 2))[2:]
+        repr_binary = format_bin(repr_binary)
     else:
         repr_binary = convert_bin(significand, exponent)
         repr_hex = hex(int(repr_binary, 2))[2:]
