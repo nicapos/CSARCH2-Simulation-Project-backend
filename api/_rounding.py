@@ -8,8 +8,7 @@ class RoundingMethod(Enum):
 	RTN_TE = "round to nearest (ties to even)"
 
 # Description: Truncate Rounding Method
-def truncate_val(x, y):
-    sig_places = y
+def truncate_val(x: str, sig_places: int):
     count = 0
     rounded = ''
     
@@ -27,58 +26,50 @@ def truncate_val(x, y):
     return rounded
 
 # Description: Round-up Rounding Method
-def roundup_val(x, y):
-    isneg = False
-    if x.startswith('-'):
-        isneg = True
-    if not isneg:
-        x = truncate_val(x, y) 
-        c = str(int(x[-1]) + 1)  
-        x = x[:-1] + c 
+def roundup_val(x: str, sig_places: int):
+    is_negative = x.startswith('-')
+
+    if not is_negative:
+        rounded_value = truncate_val(x, sig_places) 
+        c = str(int(rounded_value[-1]) + 1)  
+        rounded_value = rounded_value[:-1] + c 
     else:
-        x = truncate_val(x, y)
-    return x    
+        rounded_value = truncate_val(x, sig_places)
+
+    return rounded_value.ljust(len(str(x)), '0')
 
 # Description: Round-down Rounding Method
-def rounddown_val(x, y):
-    isneg = False
-    
-    if x.startswith('-'):
-        isneg = True
-        
-    print(isneg)    
-    if isneg:
-        x = truncate_val(x, y) 
-        c = str(int(x[-1]) + 1)  
-        x = x[:-1] + c 
+def rounddown_val(x: str, sig_places: int):
+    is_negative = x.startswith('-')
+
+    if is_negative:
+        rounded_value = truncate_val(x, sig_places) 
+        c = str(int(rounded_value[-1]) + 1)  
+        rounded_value = rounded_value[:-1] + c 
     else:
-        x = truncate_val(x, y)
-    return x
+        rounded_value = truncate_val(x, sig_places)
+
+    return rounded_value.ljust(len(str(x)), '0')
 
 # Description: Round to nearest, ties to even Rounding Method
-def checkifeven(num):
-    num = int(num)
-    if num % 2 == 0:
-        return True
-    return False
+def tiestoeven_val(x: str, sig_places: int):
+    orig_len = len(x)
 
-# Description: Round to nearest, ties to even Rounding Method
-def tiestoeven_val(x, y):
-    truncated = truncate_val(x, y)
+    truncated = truncate_val(x, sig_places)
     length = len(truncated)
     next_digit = int(x[length])
     
     if next_digit < 5:
-        x = rounddown_val(x, y)
+        x = rounddown_val(x, sig_places)
     elif next_digit > 5:
-        x = roundup_val(x, y)    
+        x = roundup_val(x, sig_places)    
     else:
         last = truncated[-1]
         x = truncated
-        if not checkifeven(last):
+        if int(last) % 2 == 0:
             c = str(int(x[-1]) + 1)  
             x = x[:-1] + c     
-    return x
+    return x.ljust(len(str(orig_len)), '0')
 
 def modify_string(val, decimal_index, count):
     # check if the values after decimal are all zeroes
@@ -129,8 +120,8 @@ def is_valid_rounding_method(option: str) -> bool:
     return option in RoundingMethod.__members__.values()
 
 def round(value: float, rounding_method: RoundingMethod) -> float:
-    val = str(value)
-    count = len(re.sub('[^0-9]', '', val))
+    count = len(re.sub('[^0-9]', '', str(value)))
+
     if count >= 7:
         if rounding_method == RoundingMethod.TRUNCATE:
             rounded = truncate_val(str(value), 7)
@@ -144,33 +135,30 @@ def round(value: float, rounding_method: RoundingMethod) -> float:
         elif rounding_method == RoundingMethod.RTN_TE:            
             rounded = tiestoeven_val(str(value), 7)
             return float(rounded)
+        
     return value
 
 def normalize(significand: float, exponent: int) -> tuple:
-	# return normalized significand and adjusted exponent
+	# return normalized significand and adjusted exponent, assumes significand was already rounded
 
-	val = str(significand)
-	count = len(re.sub('[^0-9]', '', val))
-	has_dot = '.' in val
+    significand = str(significand)
+    count_digits = len(re.sub('[^0-9]', '', significand))
  
-	if has_dot:
-		digit_count = len(val.lstrip("-").split(".")[0])
-		decimal_index = val.index('.')
-		# check the number of digits before the decimal point
-		if digit_count != 7: # ex: 123.45 = 0012345 and 123456789.890 = 1234567.89890
-			val = modify_string(val, decimal_index, count)
-                        
-		new_decimal_index = val.index('.')
-		exponent += decimal_index - new_decimal_index
-	else:
-		if count < 7: # ex: 123 = 0000123
-			# append zeroes at the front until the number of digits in the number string is equal to 7
-			val = val.rjust(7, "0")
-		if count > 7: # ex: 123456789 = 1234567.89 
-			# place a decimal point after the 7th digit
-			val = val[:7] + "." + val[7:]
-   
-	# val has the updated string
-	significand = float(val)
- 
-	return significand, exponent
+    if '.' in significand: # ex. 123456.700 x 10^0 -> 123456700 x 10^-3
+        integer_part, decimal_part = significand.split('.')
+
+        significand = integer_part + decimal_part
+        exponent -= len(decimal_part)
+
+    if count_digits > 7: # ex. 123456700 x 10^-3 -> 1234567 x 10^-1
+        sign_offset = int(significand.startswith('-'))
+
+        truncated_digits = significand[7+sign_offset:]
+        exponent += len(truncated_digits)
+
+        significand = significand[:7+sign_offset]
+    
+    sign_offset = int(significand.startswith('-'))
+    significand = significand.rjust(7+sign_offset, "0")
+                    
+    return significand, exponent
