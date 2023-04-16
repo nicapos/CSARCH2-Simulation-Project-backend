@@ -143,7 +143,7 @@ def convert_bin(significand: float, exponent: int) -> str:
     
  # (B) Put in output
 	# (1) Add Sign Bit
-    output += '1' if val.startswith('-') else '0'
+    output = '1' if val.startswith('-') else '0'
     # (2) Add Combination Field
     combi = ''.join([str(elem) for elem in combi])
     output = output + combi

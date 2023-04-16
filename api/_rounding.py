@@ -129,7 +129,6 @@ def is_valid_rounding_method(option: str) -> bool:
     return option in RoundingMethod.__members__.values()
 
 def round(value: float, rounding_method: RoundingMethod) -> float:
-    # TODO: implement rounding
     val = str(value)
     count = len(re.sub('[^0-9]', '', val))
     if count >= 7:
@@ -148,7 +147,6 @@ def round(value: float, rounding_method: RoundingMethod) -> float:
     return value
 
 def normalize(significand: float, exponent: int, rounding_method: RoundingMethod) -> tuple:
-	# TODO: return normalized and rounded value
 	# return normalized significand and adjusted exponent
 
 	val = str(significand)
@@ -161,17 +159,18 @@ def normalize(significand: float, exponent: int, rounding_method: RoundingMethod
 		# check the number of digits before the decimal point
 		if digit_count != 7: # ex: 123.45 = 0012345 and 123456789.890 = 1234567.89890
 			val = modify_string(val, decimal_index, count)
+                        
+		new_decimal_index = val.index('.')
+		exponent += decimal_index - new_decimal_index
 	else:
 		if count < 7: # ex: 123 = 0000123
 			# append zeroes at the front until the number of digits in the number string is equal to 7
-			val = val.replace(".", "").rjust(7, "0")
+			val = val.rjust(7, "0")
 		if count > 7: # ex: 123456789 = 1234567.89 
 			# place a decimal point after the 7th digit
 			val = val[:7] + "." + val[7:]
    
 	# val has the updated string
 	significand = float(val)
-	new_decimal_index = val.index('.')
-	exponent = exponent + (decimal_index - new_decimal_index)
  
 	return significand, exponent
